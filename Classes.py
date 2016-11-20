@@ -5,10 +5,10 @@ import time
     Reinforcement Learning Project """
 
 """ DoT = Damage over Time
-    Used to keep track of all of such abilities that a targe tis
+    Used to keep track of all of such abilities that a target is
     afflicted by. """
 class Dot:
-    def __init__(self, damage, interval ):
+    def __init__(self, damage, interval):
         self.damage = damage
         self.interval = interval
 
@@ -18,10 +18,11 @@ class Dot:
 """ Ability class to encapsulate the the functionality of
     different abilities. """
 class Ability:
-    def __init__(self, name, damage, effects, cd):
+    def __init__(self, name, damage, effects, cd, cost):
         self.name = name
         self.damage = damage
         self.effects = effects
+        self.cost = cost
         self.cd = cd
         self.last_use = 0
 
