@@ -1,6 +1,6 @@
 """ Juan Bautista Berretta and Jack Reynolds """
 
-from .Classes import *
+from Classes import *
 
 """ Creates the initial state, in which all the abilities are available for use. """
 def CreateInitialState():
@@ -25,8 +25,8 @@ def CreateInitialState():
     """ Special abilities. """
     battle_cry = Ability("battle_cry", None, "battle_cry", 60, None)
 
-    abilities.append(mortal_strike, slam, whirlwind, colossus_smash,
-                    rend, bladestorm, execute, cleave, hamstring, battle_cry)
+    abilities = [mortal_strike, slam, whirlwind, colossus_smash,
+                    rend, bladestorm, execute, cleave, hamstring, battle_cry]
 
     state = State(abilities, target)
 

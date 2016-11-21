@@ -1,9 +1,10 @@
-from .Helpers import Helpers
+from Helpers import *
 
 
 
 def initQMatrix(initialState):
     abilities = initialState.abilities
+    print('yes')
 
     Qmatrix = []
 
@@ -22,5 +23,7 @@ def initQMatrix(initialState):
 
 
 def main():
-    CreateInitialState()
+    initialstate = CreateInitialState()
+    initQMatrix(initialstate)
 
+main()
