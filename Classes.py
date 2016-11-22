@@ -1,5 +1,4 @@
 import random
-import time
 
 """Juan Bautista Berretta & Jack Reynolds 2016
     Reinforcement Learning Project """
@@ -24,11 +23,11 @@ class Ability:
         self.effects = effects
         self.cost = cost
         self.cd = cd
-        self.last_use = 0
+        self.remaining_time = 0
 
     """ Tentative? Are we going to do things in real time?? """
     def canUse(self):
-        if (time.time() - self.last_use) > self.cd:
+        if self.remaining_time <= 0:
             return True
         else:
             return False
@@ -37,7 +36,7 @@ class Ability:
     def calculateDamage(self):
         crit_chance = random.randfloat(1, 100)
 
-        self.last_use = time.time()
+        self.remaining_time = self.cd
 
         if crit_chance < 15.07:
             return self.damage * self.damage
@@ -61,4 +60,9 @@ class State:
     def __init__(self, abilities, target):
         self.abilities = abilities
         self.target = target
+        self.rage = 100
+
+    def decreaseRage(self, amount):
+        self.rage -= amount
+
 

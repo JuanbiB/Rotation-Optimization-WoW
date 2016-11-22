@@ -1,6 +1,6 @@
 """ Juan Bautista Berretta and Jack Reynolds """
 
-from .Classes import *
+from Classes import *
 
 """ Creates the initial state, in which all the abilities are available for use. """
 def CreateInitialState():
