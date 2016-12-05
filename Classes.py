@@ -3,17 +3,7 @@ import random
 """Juan Bautista Berretta & Jack Reynolds 2016
     Reinforcement Learning Project """
 
-""" DoT = Damage over Time
-    Used to keep track of all of such abilities that a target is
-    afflicted by. """
-class Dot:
-    def __init__(self, damage, interval):
-        self.damage = damage
-        self.interval = interval
-
-    def tick(self, target):
-        target.health -= self.damage
-
+            
 """ Ability class to encapsulate the the functionality of
     different abilities. """
 class Ability:
@@ -25,15 +15,15 @@ class Ability:
         self.cd = cd
         self.remaining_time = 0
 
-    """ Tentative? Are we going to do things in real time?? """
+    """ To check if an ability is on CD or not. """
     def canUse(self):
         if self.remaining_time <= 0:
             return True
         else:
             return False
 
-    """ Just basic calculation of raw damage, does not apply special effects. """
-    def calculateDamage(self):
+    """ Returns raw damage and activates CD. """
+    def useAbility(self):
         crit_chance = random.randfloat(1, 100)
 
         self.remaining_time = self.cd
@@ -49,12 +39,28 @@ class Ability:
 class Target:
     def __init__(self, health):
         self.health = health
-        self.dots = []
+        self.effects = {} # {effect : duration}
+        self.damage_boost = 0.0
 
     def takeDamage(self, ability):
-        self.health -= ability.calculateDamage()
+        self.health -= ability.useAbility()
 
-
+        # UNDER DEVELOPMENT, ABILITIES WITH EFFECTS
+        name = ability.effects
+        if name == "rend": # dot
+            self.effects["rend"] = 15
+        elif name == "colossus_smash": # damage increase
+            self.damage_boost = .47
+        elif name == "bladestorm": # channel
+            return
+        elif name == "execute": # additional damage
+            return
+        elif name == "cleave": # additional damage to ww
+            return
+        else: # battlecry, increased CS
+            return
+        
+    
 """ State class that holds a list of abilities and the state of the current target. """
 class State:
     def __init__(self, abilities, target):

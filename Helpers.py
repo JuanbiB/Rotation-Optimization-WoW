@@ -1,5 +1,7 @@
 """ Juan Bautista Berretta and Jack Reynolds """
 
+GCD = 1.5
+
 from Classes import *
 
 """ Creates the initial state, in which all the abilities are available for use. """
@@ -20,14 +22,34 @@ def CreateInitialState():
     bladestorm = Ability("bladestorm", 87029, "bladestorm", 90, None)
     execute = Ability("execute", 8552, "execute", None, 8)
     cleave = Ability("cleave", 4751, "cleave", 5.62, 8)
-    hamstring = Ability("hamstring", 5543, "hamstring", None, 8)
 
     """ Special abilities. """
     battle_cry = Ability("battle_cry", None, "battle_cry", 60, None)
 
     abilities.append(mortal_strike, slam, whirlwind, colossus_smash,
-                    rend, bladestorm, execute, cleave, hamstring, battle_cry)
+                    rend, bladestorm, execute, cleave, battle_cry)
 
     state = State(abilities, target)
 
     return state
+
+""" Constructs and returns the next state depending on the ability chosen. """
+def ConstructNextState(current_state, ability_used):
+    # 1) Start ability cooldown (CD - GCD), and decrease pertinent rage 
+    # 2) Iterate through rest of abilities and decrease their CDs as well
+    # 3) Check rage generation
+
+    # Constructing new state out of old. All changes will be done to the new state object.
+    new_state = State(current_state.abilities, current_state.target)
+
+    # Decreasing all ability CDs by GCD
+    for ability in new_state.abilities:
+        ability.remaining_time -= GCD
+        if ability.name == ability_used.name:
+            # Updating rage. 
+            new_state.rage -= ability.cost
+            new_state.target.takeDamage(ability) # damages and applies effects to target
+
+    return new_state
+
+            
