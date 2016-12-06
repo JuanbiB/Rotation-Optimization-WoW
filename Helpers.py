@@ -7,7 +7,7 @@ from Classes import *
 """ Creates the initial state, in which all the abilities are available for use. """
 def CreateInitialState():
     abilities = []
-    target = Target(100)
+    target = Target(10000)
 
     """ name - damage - effects - cool down - cost """
 
@@ -26,8 +26,8 @@ def CreateInitialState():
     """ Special abilities. """
     battle_cry = Ability("battle_cry", None, "battle_cry", 60, None)
 
-    abilities.append(mortal_strike, slam, whirlwind, colossus_smash,
-                    rend, bladestorm, execute, cleave, battle_cry)
+    abilities.extend([mortal_strike, slam, whirlwind, colossus_smash,
+                      rend, bladestorm, execute, cleave, battle_cry])
 
     state = State(abilities, target)
 
@@ -45,11 +45,27 @@ def ConstructNextState(current_state, ability_used):
     # Decreasing all ability CDs by GCD
     for ability in new_state.abilities:
         ability.remaining_time -= GCD
-        if ability.name == ability_used.name:
+        if ability.name == ability_used:
             # Updating rage. 
             new_state.rage -= ability.cost
             new_state.target.takeDamage(ability) # damages and applies effects to target
 
+    # Auto attack timer for rage regeneration
+    new_state.decreaseTimer(GCD, new_state.target)
+    # Checking our only DoT 
+    new_state.target.checkRend()
+
     return new_state
 
-            
+# Converts a state into a matrix entry
+def convertState(state):
+    row = {}
+    for ability in state.abilities:
+        if ability.canUse():
+            row[ability.name] = ability.damage
+    return row
+
+        # we don't even include the abilities that can't be used in the dictionary
+    
+    
+
