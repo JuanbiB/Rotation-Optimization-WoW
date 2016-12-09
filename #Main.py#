@@ -78,6 +78,7 @@ def q_learn(episodes):
             # Add to reward matrix
             r_matrix[next_state] = convertState(next_state)
 
+            
             # Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
             
 

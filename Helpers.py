@@ -3,31 +3,33 @@
 GCD = 1.5
 
 from Classes import *
+import copy
 
 """ Creates the initial state, in which all the abilities are available for use. """
 def CreateInitialState():
     abilities = []
-    target = Target(10000)
+    target = Target(1000000)
 
     """ name - damage - effects - cool down - cost """
 
     """ Without effects. """
     mortal_strike = Ability("mortal_strike", 17263, None, 5, 16)
-    slam = Ability("slam", 11938, None, None, 16)
-    whirlwind = Ability("whirlwind", 9661, None, None, 20)
+    slam = Ability("slam", 11938, None, 0, 16)
+    whirlwind = Ability("whirlwind", 9661, None, 0, 20)
 
     """ With effects. """
-    colossus_smash = Ability("colossus_smash", 14166, "colossus_smash", 30, None)
-    rend = Ability("rend", 22755, "rend", None, 12)
-    bladestorm = Ability("bladestorm", 87029, "bladestorm", 90, None)
-    execute = Ability("execute", 8552, "execute", None, 8)
+    colossus_smash = Ability("colossus_smash", 14166, "colossus_smash", 30, 0)
+    rend = Ability("rend", 0, "rend", 0, 12) # damage is 0 because it's ticking is handled separatedly 
+#    bladestorm = Ability("bladestorm", 87029, "bladestorm", 90, None)
+    execute = Ability("execute", 8552, "execute", 0, 8)
     cleave = Ability("cleave", 4751, "cleave", 5.62, 8)
 
     """ Special abilities. """
     battle_cry = Ability("battle_cry", None, "battle_cry", 60, None)
 
+    # bladestorm excluded
     abilities.extend([mortal_strike, slam, whirlwind, colossus_smash,
-                      rend, bladestorm, execute, cleave, battle_cry])
+                      rend, execute, cleave, battle_cry])
 
     state = State(abilities, target)
 
@@ -40,13 +42,13 @@ def ConstructNextState(current_state, ability_used):
     # 3) Check rage generation
 
     # Constructing new state out of old. All changes will be done to the new state object.
-    new_state = State(current_state.abilities, current_state.target)
+    new_state = State(copy.deepcopy(current_state.abilities), copy.deepcopy(current_state.target))
 
     # Decreasing all ability CDs by GCD
     for ability in new_state.abilities:
         ability.remaining_time -= GCD
         if ability.name == ability_used:
-            # Updating rage. 
+            # Updating rage
             new_state.rage -= ability.cost
             new_state.target.takeDamage(ability) # damages and applies effects to target
 
@@ -64,8 +66,32 @@ def convertState(state):
         if ability.canUse():
             row[ability.name] = ability.damage
     return row
-
         # we don't even include the abilities that can't be used in the dictionary
-    
-    
 
+# Used to compare states to see if they're equal
+def compareStates(state_1, state_2):
+    s1_abilities = convertState(state_1)
+    s2_abilities = convertState(state_2)
+
+    for key, value in s1_abilities.items():
+        if key not in list(s2_abilities.keys()):
+            return False
+
+    s1_target = (state_1.target.health / state_1.target.full_health) * 100
+    s2_target = (state_2.target.health / state_2.target.full_health) * 100
+    print(s1_target)
+    print(s2_target)
+
+    # target health is discretized as 10% intervals 
+    difference = s1_target - s2_target
+    if abs(difference) >= 10:
+        return False
+
+    return True
+
+# Gets the corresponding key for the dictionary in {state : {}}
+def getKey(dict, s1):
+    for s2 in list(dict.keys()):
+        if compareStates(s1, s2):
+            return dict[s2]
+        
