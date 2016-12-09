@@ -1,0 +1,27 @@
+- Should we manage buffs like Colossus Smash when writing down the rewards for the next state depending
+  on whether it's active or not?
+- Would a DoT like Rend play it into the amount of damage done next state?
+
+I mean, otherwise how would we realize that these actions are beneficial?
+The rewards in the next state are contingent on the absence or presence of damage enhancing effects.
+
+What other abilities are there that can affect such a thing?
+- Battle Cry: yet, this increases the damage of everything by a factor of two, so why wouldn't it be important?
+  But what, then, of normal critical strikes? Should they be counted?
+  ^ No, they should not, because you have no knowledge of whether it's going to crit or not, that's probability.
+    Battlecry and Colossus Smash, on the other hand, have guaranteed effects that you can count on.
+
+Rend is also a guaranteed effect.
+
+Verdict: I'm going to include the effects of all these abilities on the next states. Must fix construct next state.
+
+Pertinent abilities to check:
+	  Rend
+	  Battle Cry
+	  Colossus Smash
+
+Should we even consider AoE dps abilities?
+Are we not optimizing single target DPS??
+
+Dropping cleave and whirlwind
+	
