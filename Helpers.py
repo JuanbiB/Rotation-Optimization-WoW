@@ -1,13 +1,10 @@
 """ Juan Bautista Berretta and Jack Reynolds """
 
-<<<<<<< HEAD
-from Classes import *
-=======
 GCD = 1.5
 
 from classes import *
 import copy
->>>>>>> origin/master
+
 
 """ Creates the initial state, in which all the abilities are available for use. """
 def CreateInitialState():
@@ -28,19 +25,9 @@ def CreateInitialState():
     battle_cry = Ability("battle_cry", None, "battle_cry", 60, None)
     avatar = Ability("avatar", 0, "avatar", 90, 0) 
 
-<<<<<<< HEAD
-    abilities = [mortal_strike, slam, whirlwind, colossus_smash,
-                    rend, bladestorm, execute, cleave, hamstring, battle_cry]
-=======
-    # bladestorm excluded
-<<<<<<< HEAD
+
     abilities.extend([mortal_strike, slam, colossus_smash,
                       execute, avatar, battle_cry])
-=======
-    abilities.extend([mortal_strike, slam, whirlwind, colossus_smash,
-                      rend, execute, cleave, battle_cry])
->>>>>>> origin/master
->>>>>>> origin/master
 
     state = State(abilities, target)
 
