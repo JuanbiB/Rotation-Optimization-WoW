@@ -1,6 +1,6 @@
 """ Main algorithm implementation """
 import time
-from Helpers import *
+from helpers import *
 
 def test_probability():
     # does this feel like 15% ? 
@@ -84,13 +84,9 @@ def q_learn(episodes):
         
 def main():
     """ Tests """
-    test_indexing()
+    #test_indexing()
     #test_stateTransition()
-    #test_colossus()
+    test_colossus()
     #test_state_comparison()
 
-
-
-        
-    
 main()

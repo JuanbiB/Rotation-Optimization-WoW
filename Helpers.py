@@ -2,7 +2,7 @@
 
 GCD = 1.5
 
-from Classes import *
+from classes import *
 import copy
 
 """ Creates the initial state, in which all the abilities are available for use. """
@@ -15,21 +15,18 @@ def CreateInitialState():
     """ Without effects. """
     mortal_strike = Ability("mortal_strike", 17263, None, 5, 16)
     slam = Ability("slam", 11938, None, 0, 16)
-    whirlwind = Ability("whirlwind", 9661, None, 0, 20)
 
     """ With effects. """
     colossus_smash = Ability("colossus_smash", 14166, "colossus_smash", 30, 0)
-    rend = Ability("rend", 0, "rend", 0, 12) # damage is 0 because it's ticking is handled separatedly 
-#    bladestorm = Ability("bladestorm", 87029, "bladestorm", 90, None)
     execute = Ability("execute", 8552, "execute", 0, 8)
-    cleave = Ability("cleave", 4751, "cleave", 5.62, 8)
 
     """ Special abilities. """
     battle_cry = Ability("battle_cry", None, "battle_cry", 60, None)
+    avatar = Ability("avatar", 0, "avatar", 90, 0) 
 
     # bladestorm excluded
-    abilities.extend([mortal_strike, slam, whirlwind, colossus_smash,
-                      rend, execute, cleave, battle_cry])
+    abilities.extend([mortal_strike, slam, colossus_smash,
+                      execute, avatar, battle_cry])
 
     state = State(abilities, target)
 
@@ -43,7 +40,8 @@ def ConstructNextState(current_state, ability_used):
 
     # Constructing new state out of old. All changes will be done to the new state object.
     new_state = State(copy.deepcopy(current_state.abilities), copy.deepcopy(current_state.target))
-
+    new_state.target.checkEffects()
+    
     # Decreasing all ability CDs by GCD
     for ability in new_state.abilities:
         ability.remaining_time -= GCD
@@ -54,9 +52,8 @@ def ConstructNextState(current_state, ability_used):
 
     # Auto attack timer for rage regeneration
     new_state.decreaseTimer(GCD, new_state.target)
-    # Checking our only DoT 
-    new_state.target.checkRend()
 
+    new_state.target.printStatus()
     return new_state
 
 # Converts a state into a matrix entry
@@ -64,7 +61,17 @@ def convertState(state):
     row = {}
     for ability in state.abilities:
         if ability.canUse():
-            row[ability.name] = ability.damage
+            # the following abilities are affect damage for future states and should be considered:
+            # colossus smash, avatar, battle cry
+            # but.. Avatar and CS don't work within the global cooldown
+            damage = ability.damage
+            if state.target.colossus_smash > 0:
+                damage = damage + ((damage/100) * 47) # + 47% damage boost
+            if state.target.battle_cry > 0:
+                damage = damage * 2
+            if state.target.avatar > 0:
+                damage = damage + ((damage/100) * 20) # + 20% damage boost
+            row[ability.name] = damage
     return row
         # we don't even include the abilities that can't be used in the dictionary
 
