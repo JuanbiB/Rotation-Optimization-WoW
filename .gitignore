@@ -16,3 +16,10 @@ TODO~
 #Main.py#
 
 *.py#
+/bin/
+
+.classpath
+*.xml
+.idea/Rotation-Optimization-WoW.iml
+*.pydevproject
+test.py
