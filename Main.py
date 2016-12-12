@@ -53,6 +53,32 @@ def test_indexing():
 
     print(getKey(dict, initial2))
 
+# updates the q matrix with the corresponding reward     
+def update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action):
+    # Begin by finding the highest value of the next state in the q matrix
+    # If Q(next_state) doesn't exist then the reward is just 0
+    ns_actions = getKey(q_matrix, next_state)
+    if (q_ns == None):
+        ns_reward = 0
+    else:
+        # choose the action that yields the highest reward
+        ns_max_value = 0
+        ns_max_ability = "not set"
+        for key, value in ns_actions.items():
+            if value > ns_max:p
+                ns_max_value = value
+                ns_max_ability = key
+        ns_reward = ns_max_value
+        print("The best ability for the next state is: " + key + "\nWith a value of: " str(value))
+
+    # Get reward of of current state
+    cs_actions = getKey(r_matrix, chosen_action)
+    cs_reward = cs_actions[chosen_action]
+
+    # Compute the reward for the Q matrix
+    q_reward = cs_reward + gamma * ns_reward
+    q_matrix[current_state] = {chosen_action:q_reward}
+
 def q_learn(episodes):
     """ Q-Learning Algorithm """
     gamma = 0.9
@@ -73,13 +99,20 @@ def q_learn(episodes):
             choices = list(getKey(r_matrix, current_state).keys())
             c_length = len(choices)
             random_index = random.randint(0, c_length - 1) # or not - 1?
+
             # Construct next state by choosing random action
-            next_state = ConstructNextState(current_state, choices[random_index])
+            chosen_action = choices[random_index]
+            next_state = ConstructNextState(current_state, chosen_action)
+
+            # Update target health
+            target = next_state.target.health
+
             # Add to reward matrix
             r_matrix[next_state] = convertState(next_state)
 
             # Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
-            
+            update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action)
+            current_state = next_state
 
         
 def main():
