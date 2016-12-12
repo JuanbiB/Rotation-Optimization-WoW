@@ -97,9 +97,9 @@ def compareStates(state_1, state_2):
 
     return True
 
+
 # Gets the corresponding key for the dictionary in {state : {}}
 def getKey(matrix, s1):
     for s2 in list(matrix.keys()):
         if compareStates(s1, s2):
             return matrix[s2]
-        
