@@ -1,72 +1,5 @@
 """ Main algorithm implementation """
-import time
-import random
 from helpers import *
-
-
-def test_probability():
-    # does this feel like 15% ? 
-    mortal_strike = Ability("mortal_strike", 17263, None, 5, 16)
-    for i in range(10):
-        print(mortal_strike.useAbility(False))
-        time.sleep(1)
-
-
-# Quick test to make sure CDs working as should
-def test_stateTransition():
-    r_matrix = {}
-    
-    initial = CreateInitialState()
-    r_matrix["initial"] = convertState(initial)
-    
-    second = ConstructNextState(initial, "mortal_strike")
-    r_matrix["second"] = convertState(second)
-
-    third = ConstructNextState(initial, "rend")
-    r_matrix["third"] = convertState(third)
-
-    inorder = ["initial", "second", "third"]
-    for key in inorder:
-        print(key)
-        for k, v in r_matrix[key].items():
-            print("\t " + k)
-
-
-def test_colossus():
-    initial = CreateInitialState()
-    one = ConstructNextState(initial, "mortal_strike")
-    two = ConstructNextState(one, "colossus_smash")
-    three = ConstructNextState(two, "mortal_strike")
-
-
-def test_state_comparison():
-    initial = CreateInitialState()
-    initial2 = CreateInitialState()
-    print("Expected True: " + str(compareStates(initial, initial2)))
-
-    two = ConstructNextState(initial, "colossus_smash")
-    print("Expected False: " + str(compareStates(initial, two)))
-
-
-def test_indexing():
-    matrix = {}
-    
-    initial = CreateInitialState()
-    initial2 = CreateInitialState()
-
-    matrix[initial] = convertState(initial)
-
-    print(getKey(matrix, initial2))
-
-
-def test_update_q():
-    q_matrix = {}
-    r_matrix = {}
-    initial_state = CreateInitialState()
-    r_matrix[initial_state] = convertState(initial_state)
-    next_state = ConstructNextState(initial_state, "colossus_smash")
-    update_q(q_matrix, r_matrix, .9, next_state, initial_state, "colossus_smash")
-    print(q_matrix)
 
 
 # updates the q matrix with the corresponding reward     
@@ -76,17 +9,13 @@ def update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action
     ns_actions = getKey(q_matrix, next_state)
     if ns_actions is None:
         ns_reward = 0
-        print("There was no future Q value.")
     else:
         # choose the action that yields the highest reward
         ns_max_value = 0
-        ns_max_ability = "not set"
         for key, value in ns_actions.items():
-            if value > ns_max_ability:
+            if value >= ns_max_value:
                 ns_max_value = value
-                ns_max_ability = key
         ns_reward = ns_max_value
-        print("The best ability for the next state is: " + key + "\nWith a value of: " + str(value))
 
     # Get reward of of current state
     cs_actions = getKey(r_matrix, current_state)
@@ -94,12 +23,19 @@ def update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action
 
     # Compute the reward for the Q matrix
     q_reward = cs_reward + gamma * ns_reward
-    q_matrix[current_state] = {chosen_action:q_reward}
+
+    # Just add to the q matrix if that particular state's already in there
+    for state in q_matrix.keys():
+        if compareStates(state, current_state):
+            q_matrix[state][chosen_action] = q_reward
+            return
+
+    # Crate a new entry if it's not already in there
+    q_matrix[current_state] = {chosen_action: q_reward}
 
 
-def q_learn(episodes):
+def q_learn(episodes, gamma):
     """ Q-Learning Algorithm """
-    gamma = 0.9
     r_matrix = {}
     q_matrix = {}
 
@@ -107,7 +43,7 @@ def q_learn(episodes):
     for i in range(episodes):
         # We know what state we're starting at, so no need to select a random one
         initial_state = CreateInitialState()
-        target = initial_state.target
+        target = initial_state.target.health
 
         # Add the initial state to the reward matrix
         r_matrix[initial_state] = convertState(initial_state)
@@ -120,7 +56,7 @@ def q_learn(episodes):
             # select a random action to take
             choices = list(getKey(r_matrix, current_state).keys())
             c_length = len(choices)
-            random_index = random.randint(0, c_length - 1) # or not - 1?
+            random_index = random.randint(0, c_length - 1)  # or not - 1?
 
             # Construct next state by choosing random action
             chosen_action = choices[random_index]
@@ -136,13 +72,62 @@ def q_learn(episodes):
             update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action)
             current_state = next_state
 
-        
+    # return trained learner to compute the best rotation
+    return q_matrix
+
+
+# returns a rotation
+def traverse_q(q_matrix):
+    # we know the initial state, so that's where we begin
+    current_state = CreateInitialState()
+    target = current_state.target.health
+
+    chosen_actions = []
+
+    while target > 0:
+        # First find the corresponding state in the Q matrix
+        for state in q_matrix.keys():
+            if compareStates(current_state, state):
+                actions = q_matrix[state]
+                break
+
+        # Find the action with the highest yield
+        best_action = "not set"
+        best_value = 0
+        for key, value in actions.items():
+            if value > best_value:
+                best_value = value
+                best_action = key
+
+        chosen_actions.append(best_action)
+
+        current_state = ConstructNextState(current_state, best_action)
+        target = current_state.target.health
+
+    return chosen_actions
+
+
+def write_results(name, actions):
+    with open(name, 'w') as file:
+        for action in actions:
+            file.write(action + "\n")
+    print("Wrote to: " + name)
+
+
 def main():
     """ Tests """
-    #test_indexing()
-    #test_stateTransition()
-    #test_colossus()
-    #test_state_comparison()
-    test_update_q()
+    # test_indexing()
+    # test_stateTransition()
+    # test_colossus()
+    # test_state_comparison()
+    # test_update_q()
+
+    # Training and rotation spitting
+    episodes = 25
+    gamma = 0.8
+    q_matrix = q_learn(episodes, gamma)
+    actions = traverse_q(q_matrix)
+    write_results("results_" + str(episodes) + "episodes_" +
+                  str(gamma) + "gamma.txt", actions)
 
 main()

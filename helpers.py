@@ -9,7 +9,7 @@ import copy
 """ Creates the initial state, in which all the abilities are available for use. """
 def CreateInitialState():
     abilities = []
-    target = Target(1000000)
+    target = Target(1000000) # 1 million health
 
     """ name - damage - effects - cool down - cost """
 
@@ -19,10 +19,10 @@ def CreateInitialState():
 
     """ With effects. """
     colossus_smash = Ability("colossus_smash", 14166, "colossus_smash", 30, 0)
-    execute = Ability("execute", 8552, "execute", 0, 8)
+    execute = Ability("execute", 34209, "execute", 0, 20)
 
     """ Special abilities. """
-    battle_cry = Ability("battle_cry", None, "battle_cry", 60, None)
+    battle_cry = Ability("battle_cry", 0, "battle_cry", 60, 0)
     avatar = Ability("avatar", 0, "avatar", 90, 0) 
 
 
@@ -49,13 +49,13 @@ def ConstructNextState(current_state, ability_used):
         if ability.name == ability_used:
             # Updating rage
             new_state.rage -= ability.cost
-            new_state.target.takeDamage(ability) # damages and applies effects to target
+            new_state.target.takeDamage(ability)  # damages and applies effects to target
 
     # Auto attack timer for rage regeneration
-    new_state.decreaseTimer(GCD, new_state.target)
 
-    new_state.target.printStatus()
+    new_state.decreaseTimer(GCD, new_state.target)
     return new_state
+
 
 # Converts a state into a matrix entry
 def convertState(state):
@@ -64,31 +64,46 @@ def convertState(state):
         if ability.canUse():
             # the following abilities are affect damage for future states and should be considered:
             # colossus smash, avatar, battle cry
-            # but.. Avatar and CS don't work within the global cooldown
             damage = ability.damage
             if state.target.colossus_smash > 0:
-                damage = damage + ((damage/100) * 47) # + 47% damage boost
+                damage += ((damage/100) * 47)  # + 47% damage boost
             if state.target.battle_cry > 0:
-                damage = damage * 2
+                damage *= 2
             if state.target.avatar > 0:
-                damage = damage + ((damage/100) * 20) # + 20% damage boost
-            row[ability.name] = damage
+                damage += ((damage/100) * 20)  # + 20% damage boost
+
+            # special handling for execute
+            if ability.name == "execute":
+                t_health = (state.target.health/state.target.full_health) * 100
+                if t_health <= 20:
+                    row[ability.name] = damage
+            else:
+                row[ability.name] = damage
     return row
-        # we don't even include the abilities that can't be used in the dictionary
+    # we don't even include the abilities that can't be used in the dictionary
+
 
 # Used to compare states to see if they're equal
 def compareStates(state_1, state_2):
     s1_abilities = convertState(state_1)
     s2_abilities = convertState(state_2)
 
-    for key, value in s1_abilities.items():
-        if key not in list(s2_abilities.keys()):
+    s1_ability_list = list(s1_abilities.keys())
+    s2_ability_list = list(s2_abilities.keys())
+
+    # There needs to be a 1 to 1 correspondence for these to be equal
+    if len(s1_ability_list) != len(s2_ability_list):
+        return False
+
+    s1_ability_list.sort()
+    s2_ability_list.sort()
+
+    for i in range(len(s1_ability_list)):
+        if s1_ability_list[i] != s2_ability_list[i]:
             return False
 
     s1_target = (state_1.target.health / state_1.target.full_health) * 100
     s2_target = (state_2.target.health / state_2.target.full_health) * 100
-    print(s1_target)
-    print(s2_target)
 
     # target health is discretized as 10% intervals 
     difference = s1_target - s2_target

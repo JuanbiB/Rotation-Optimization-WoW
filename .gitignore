@@ -23,3 +23,5 @@ TODO~
 .idea/Rotation-Optimization-WoW.iml
 *.pydevproject
 test.py
+*.txt
+results_50

@@ -27,7 +27,7 @@ class Ability:
         crit_chance = random.uniform(0.0, 100.0)
         self.remaining_time = self.cd
 
-        # battlecry guaratness crit strike
+        # battlecry guarantees crit strike
         if not battle_cry:
             if crit_chance < 15.07:
                 print("Critical strike for ability: " + self.name)
@@ -48,7 +48,6 @@ class Target:
         self.battle_cry = 0  # guaratneed crit strike
         self.avatar = 0
 
-
     def takeDamage(self, ability):
         if self.battle_cry:
             damage = ability.useAbility(True) # Parameter guarantees critical strikes
@@ -60,9 +59,9 @@ class Target:
 
         # damage modifying
         if self.colossus_smash > 0:
-            damage = damage + ((og_damage/100) * 47) # + 47% damage boost
+            damage += ((og_damage/100) * 47) # + 47% damage boost
         if self.avatar > 0:
-            damage = damage + ((og_damage/100) * 20) # + 20% damage boost
+            damage += ((og_damage/100) * 20) # + 20% damage boost
             
         # CD refreshing
         elif ability.name == "colossus_smash":
@@ -71,10 +70,6 @@ class Target:
             self.avatar = 20
         elif ability.name == "battle_cry":
             self.battle_cry = 5
-
-        # Logging
-        if damage != 0:
-            print("Applied " + ability.name + " for: " + str(damage) + "\n\t " + str(self.health) + " --> " + str(self.health - damage))
 
         # Actual health deduction
         self.health -= damage
