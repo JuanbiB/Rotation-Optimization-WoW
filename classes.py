@@ -7,10 +7,9 @@ GCD = 1.5
 """ Ability class to encapsulate the the functionality of
     different abilities. """
 class Ability:
-    def __init__(self, name, damage, effects, cd, cost):
+    def __init__(self, name, damage, cd, cost):
         self.name = name
         self.damage = damage
-        self.effects = effects
         self.cost = cost
         self.cd = cd
         self.remaining_time = 0
@@ -44,7 +43,7 @@ class Target:
     def __init__(self, health):
         self.health = health
         self.full_health = health
-        self.colossus_smash = 0 # duration left in damage boost
+        self.colossus_smash = 0  # duration left in damage boost
         self.battle_cry = 0  # guaratneed crit strike
         self.avatar = 0
 

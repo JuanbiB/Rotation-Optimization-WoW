@@ -1,9 +1,9 @@
 """ Main algorithm implementation """
 from helpers import *
-
+import time
 
 # updates the q matrix with the corresponding reward     
-def update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action):
+def UpdateQ(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action):
     # Begin by finding the highest value of the next state in the q matrix
     # If Q(next_state) doesn't exist then the reward is just 0
     ns_actions = getKey(q_matrix, next_state)
@@ -13,7 +13,7 @@ def update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action
         # choose the action that yields the highest reward
         ns_max_value = 0
         for key, value in ns_actions.items():
-            if value >= ns_max_value:
+            if value > ns_max_value:
                 ns_max_value = value
         ns_reward = ns_max_value
 
@@ -34,7 +34,7 @@ def update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action
     q_matrix[current_state] = {chosen_action: q_reward}
 
 
-def q_learn(episodes, gamma):
+def QLearn(episodes, gamma):
     """ Q-Learning Algorithm """
     r_matrix = {}
     q_matrix = {}
@@ -69,7 +69,7 @@ def q_learn(episodes, gamma):
             r_matrix[next_state] = convertState(next_state)
 
             # Q(state, action) = R(state, action) + Gamma * Max[Q(next state, all actions)]
-            update_q(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action)
+            UpdateQ(q_matrix, r_matrix, gamma, next_state, current_state, chosen_action)
             current_state = next_state
 
     # return trained learner to compute the best rotation
@@ -77,7 +77,7 @@ def q_learn(episodes, gamma):
 
 
 # returns a rotation
-def traverse_q(q_matrix):
+def TraverseQ(q_matrix):
     # we know the initial state, so that's where we begin
     current_state = CreateInitialState()
     target = current_state.target.health
@@ -107,7 +107,7 @@ def traverse_q(q_matrix):
     return chosen_actions
 
 
-def write_results(name, actions):
+def WriteResults(name, actions):
     with open(name, 'w') as file:
         for action in actions:
             file.write(action + "\n")
@@ -123,11 +123,12 @@ def main():
     # test_update_q()
 
     # Training and rotation spitting
-    episodes = 25
-    gamma = 0.8
-    q_matrix = q_learn(episodes, gamma)
-    actions = traverse_q(q_matrix)
-    write_results("results_" + str(episodes) + "episodes_" +
+    episodes = 500
+    gamma = 0.9
+    q_matrix = QLearn(episodes, gamma)
+    actions = TraverseQ(q_matrix)
+    print(actions)
+    WriteResults("results_" + str(episodes) + "episodes_" +
                   str(gamma) + "gamma.txt", actions)
 
 main()

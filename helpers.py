@@ -11,19 +11,19 @@ def CreateInitialState():
     abilities = []
     target = Target(1000000) # 1 million health
 
-    """ name - damage - effects - cool down - cost """
+    """ name - damage - cool down - cost """
 
     """ Without effects. """
-    mortal_strike = Ability("mortal_strike", 17263, None, 5, 16)
-    slam = Ability("slam", 11938, None, 0, 16)
+    mortal_strike = Ability("mortal_strike", 17263, 5, 16)
+    slam = Ability("slam", 11938, 0, 16)
 
     """ With effects. """
-    colossus_smash = Ability("colossus_smash", 14166, "colossus_smash", 30, 0)
-    execute = Ability("execute", 34209, "execute", 0, 20)
+    colossus_smash = Ability("colossus_smash", 14166, 30, 0)
+    execute = Ability("execute", 34209, 0, 20)
 
     """ Special abilities. """
-    battle_cry = Ability("battle_cry", 0, "battle_cry", 60, 0)
-    avatar = Ability("avatar", 0, "avatar", 90, 0) 
+    battle_cry = Ability("battle_cry", 0, 60, 0)
+    avatar = Ability("avatar", 0, 90, 0)
 
 
     abilities.extend([mortal_strike, slam, colossus_smash,
@@ -107,7 +107,7 @@ def compareStates(state_1, state_2):
 
     # target health is discretized as 10% intervals 
     difference = s1_target - s2_target
-    if abs(difference) >= 10:
+    if abs(difference) >= 2:
         return False
 
     return True
