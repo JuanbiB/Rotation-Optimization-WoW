@@ -105,7 +105,7 @@ def compareStates(state_1, state_2):
     s1_target = (state_1.target.health / state_1.target.full_health) * 100
     s2_target = (state_2.target.health / state_2.target.full_health) * 100
 
-    # target health is discretized as 10% intervals 
+    # target health comparison with a 2% margin
     difference = s1_target - s2_target
     if abs(difference) >= 2:
         return False
